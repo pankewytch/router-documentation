@@ -9,5 +9,5 @@
 | RJ45 Port 2   | enp4s0         | Reserved |
 | RJ45 Port 3   | enp5s0         | Reserved |
 | RJ45 Port 4   | enp6s0         | Reserved |
-| SFP+ Port 4   | enp2s0f0np0    | LAN Trunk|
-| SFP+ Port 4   | enp2s0f1np1    | Reserved |
+| SFP+ Port 1   | enp2s0f0np0    | LAN Trunk|
+| SFP+ Port 2   | enp2s0f1np1    | Reserved |

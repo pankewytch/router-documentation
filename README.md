@@ -9,11 +9,13 @@ As a principal software engineer I've worked with Kubernetes in a production env
 ### Hardware
 | Device | Role | Why |
 |--------|------|-----|
-| Protectli VP6670 - 32GB RAM; 1TB NVMe Storage | Router | Supports up to 2Gbps throughput and provides a robust platform for routing, firewalling, and advanced networking services. |
+| Protectli VP6670 | Router | Supports up to 2Gbps throughput and provides a robust platform for routing, firewalling, and advanced networking services. |
 | Ubiquiti Switch Pro Max 16 | Primary switch | Managed PoE switch with SFP+ support for resilient high-bandwidth internal transport. |
 | Ubiquiti Switch Flex 2.5G | Access switch | Managed switch with SFP+ uplink support that fits the existing lab layout. |
 | Ubiquiti Access Point U7 Pro XG | Access point | Modern Wi-Fi bands with PoE for a clean and reliable deployment. |
-| Raspberry Pi 4B 8GB | Git Actions Runner | Allows greater control over the runner, ensures all IaC packages are build on prem and within the network
+| Raspberry Pi 4B 8GB | Git Actions Runner | Allows greater control over the runner, ensures all IaC packages are build on prem and within the network |
+| Raspberry Pi 4B 8GB | DMZ Reverse Proxy | Concentrates the security risks to this one device while being powerful enough to handle the traffic into and out of the network |
+| Raspberry Pi 4B 8GB | Unifi | Runs unifi on the Infra VLAN to adopt devices and manage configs |
 
 ### VLANs
 | ID | Name | Purpose | Trust level |
@@ -52,4 +54,4 @@ The devices on this network are named after celestial bodies in our solar system
 | Git Runner Pi | Dysnomia | Eri's moon and even further removed from the network, mark its boundary |
 | Bootstrap VLAN | Oort Cloud | This marks entry into the network and it is the boundary of the solar system |
 | LLM Machine | Neptune | Outer planet and isolated |
-| Gaming Server | Pluto | Favorite planet in our system |
+| Gaming & Media Server | Pluto | Favorite planet in our system |
