@@ -14,7 +14,7 @@ As a principal software engineer I've worked with Kubernetes in a production env
 | Ubiquiti Switch Flex 2.5G | Access switch | Managed switch with SFP+ uplink support that fits the existing lab layout. |
 | Ubiquiti Access Point U7 Pro XG | Access point | Modern Wi-Fi bands with PoE for a clean and reliable deployment. |
 | Raspberry Pi 4B 8GB | Git Actions Runner | Allows greater control over the runner, ensures all IaC packages are build on prem and within the network |
-| Raspberry Pi 4B 8GB | DMZ Reverse Proxy | Concentrates the security risks to this one device while being powerful enough to handle the traffic into and out of the network |
+| Raspberry Pi 4B 8GB | DMZ Reverse Proxy | Contains blast radius security risks to this device while being powerful enough to handle the traffic into and out of the network |
 | Raspberry Pi 4B 8GB | Unifi | Runs unifi on the Infra VLAN to adopt devices and manage configs |
 
 ### VLANs
@@ -36,6 +36,7 @@ As a principal software engineer I've worked with Kubernetes in a production env
 - IaC Pipeline Design
 - DNS Blocklist Automation
 - VLAN Trust Model
+- Interface Management
 
 ### Operational Incidents
 - Incidents

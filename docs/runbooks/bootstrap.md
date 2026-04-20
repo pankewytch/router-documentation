@@ -52,3 +52,21 @@ Transition process:
 3. Reboot
 4. systemd-networkd picks up your configs automatically
 No manual config cleanup required.
+
+## Prerequisites Before Running Bootstrap script
+
+The following must be done manually before running bootstrap.sh:
+
+1. Copy signing.pub from git runner pi to ~/signing.pub on router
+   - On git runner pi: scp ~/.secrets/signing-key-pub.pem USER@ROUTER_IP:~/signing.pub
+2. Ensure the IaC repo is cloned on router
+3. Ensure you are running as your admin user with sudo access
+
+## Bootstrap Order
+Running ./bootstrap.sh all will execute steps in this exact order:
+1. install-packages   - installs tpm2-tools and all required packages
+2. harden-ssh         - disables password auth, deploys custom config
+3. create-deploy-user - creates deploy user and directory structure
+4. enroll-tpm         - enrolls signing.pub hash into TPM, moves key to final location
+5. setup-sudoers      - configures least privilege sudo for deploy user
+6. setup-network      - deploys systemd-networkd config
