@@ -1,0 +1,442 @@
+{
+    // Dhcp4 is the top level object for the Kea DHCPv4 server configuration.
+    // All configuration for the DHCPv4 server lives inside this object.
+    //Once enabling DHCPv6, a separate Dhcp6 object would be added at the same level as Dhcp4 with its own configuration.
+    "Dhcp4": {
+
+        // interfaces-config tells Kea which network interfaces to listen on
+        // for incoming DHCP requests. Each interface listed here will be
+        // monitored for DHCP discover and request packets.
+        //
+        // For a VLAN-aware setup, list both the parent interface and each
+        // VLAN subinterface. The parent interface handles untagged traffic
+        // and each VLAN subinterface handles tagged traffic for that VLAN.
+        // The parent interface is always listed first!
+        //
+        // dhcp-socket-type "raw" means Kea uses raw sockets to listen for
+        // DHCP traffic. This is required when serving DHCP to clients that
+        // do not yet have an IP address, which is always the case for DHCP.
+        // Can use "udp" but that is for a future project.
+        "interfaces-config": {
+            "interfaces": [
+                "enp4s0",        // Parent LAN interface - untagged traffic
+                "enp4s0.100",    // VLAN 100 - Test1 VLAN
+                "enp4s0.10"      // VLAN 10 - Test2 VLAN
+                // Add additional VLAN subinterfaces here as VLANs are brought online
+            ],
+            "dhcp-socket-type": "raw"
+        },
+
+        // lease-database defines where Kea stores its DHCP lease information.
+        // "memfile" stores leases in a flat file on disk. This is appropriate
+        // for a home network. Alternatives include MySQL and PostgreSQL for
+        // larger deployments that need lease replication or high availability.
+        //
+        // persist: true means leases survive a Kea restart. Without this,
+        // all devices would get new IP addresses every time Kea restarts
+        // which would break any DNS records or firewall rules tied to IPs.
+        //
+        // name: the path to the lease file. Kea must have write access here.
+        //
+        // /var/lib/kea is created on intsallation and is owned by the _kea
+        // system user, so this is a good location for the lease file.
+        "lease-database": {
+            "type": "memfile",
+            "persist": true,
+            "name": "/var/lib/kea/dhcp4.leases"
+        },
+
+        // valid-lifetime is how long a DHCP lease is valid in seconds.
+        // 86400 = 24 hours. After this time the client must renew or
+        // it loses its IP address assignment.
+        //
+        // renew-timer is when the client first attempts to renew its lease,
+        // in seconds from the start of the lease. 43200 = 12 hours (50% of
+        // valid-lifetime which is the standard recommendation).
+        //
+        // rebind-timer is when the client will try to contact any DHCP server
+        // if the renew attempt failed, in seconds. 75600 = 21 hours (87.5%
+        // of valid-lifetime which is the standard recommendation).
+        //These timers can be defined on the subnet level to override the global defaults for specific subnets if needed.
+        "valid-lifetime": 86400,
+        "renew-timer": 43200,
+        "rebind-timer": 75600,
+
+        // option-data at the top level defines default DHCP options that
+        // apply to ALL subnets unless overridden at the subnet level.
+        // Individual subnets can override these with their own option-data.
+        //
+        // domain-name-servers: the DNS server(s) given to clients.
+        // Points to Sol's IP on each VLAN - overridden per subnet since
+        // Sol has a different IP on each VLAN interface.
+        //
+        // domain-name: the DNS search domain given to clients. Used for
+        // short hostname resolution - clients can resolve "eris" instead
+        // of "eris.home.example.internal"
+        //
+        // There are MANY other options here, these are only 2 and basic
+        // ones. See Kea documentation for the full list of available options.
+        //
+        // This defines the options for the whole DHCP IPv4 server but they can
+        // be overridden on a per-subnet basis if needed.
+        "option-data": [
+            {
+                "name": "domain-name-servers",
+                "data": "10.0.100.1"
+            },
+            {
+                "name": "domain-name",
+                "data": "home.example.internal"
+            }
+        ],
+
+        // subnet4 is an array of subnet definitions. Each entry defines
+        // one subnet that Kea will serve DHCP for. In a VLAN-aware setup
+        // each VLAN gets its own subnet entry and an interface that matches
+        // the VLAN subinterface.
+        "subnet4": [
+            {
+                // comment is a human readable description of this subnet.
+                // Not used by Kea itself, purely for documentation.
+                "comment": "Infra VLAN 100 - networking equipment",
+
+                // id is a unique integer identifier for this subnet within
+                // Kea. Using the VLAN ID as the subnet ID keeps things
+                // self-documenting and avoids confusion.
+                "id": 100,
+
+                // subnet defines the network address and prefix length
+                // for this subnet in CIDR notation.
+                "subnet": "10.0.100.0/24",
+
+                // interface tells Kea which interface this subnet is
+                // associated with. For VLAN subnets this is the VLAN
+                // subinterface, not the parent interface. Kea uses this
+                // to match incoming DHCP requests to the correct subnet.
+                "interface": "enp4s0.100",
+
+                // pools defines the range of IP addresses Kea can
+                // dynamically assign to clients without reservations.
+                // Devices with MAC address reservations defined below
+                // always get their reserved address regardless of pools.
+                //
+                // Starting the pool at .100 reserves .1 through .99
+                // for the router interface, reservations, and any static
+                // assignments that exist outside of Kea.
+                //
+                // Remember, there are reserved addresses that cannot be assigned
+                // to clients either dynamically or via reservation. The first
+                // address in the subnet (.1 in this case) is reserved for the router interface and
+                // the last address in the subnet (.254 in this case) is reserved 
+                // for the broadcast address. Do not use these in pools or reservations.
+                "pools": [
+                    {
+                        "pool": "10.0.100.100 - 10.0.100.200",
+                        "comment": "Dynamic range for unmanaged devices"
+                    }
+                ],
+
+                // option-data at the subnet level overrides the global
+                // option-data for clients on this subnet only.
+                //
+                // routers: the default gateway given to clients. This is
+                // Sol's IP address on this VLAN interface.
+                //
+                // domain-name-servers: overrides the global DNS setting
+                // with Sol's IP on this specific VLAN since Sol has a
+                // different IP on each VLAN interface.
+                "option-data": [
+                    // routers is the default gateway given to clients. This is
+                    // Sol's IP address on this VLAN interface.
+                    // Without this, clients would not have a default gateway and would
+                    // not be able to communicate outside their local subnet.
+                    {
+                        "name": "routers",
+                        "data": "10.0.100.1"
+                    },
+                    {
+                        "name": "domain-name-servers",
+                        "data": "10.0.100.1"
+                    }
+                ],
+
+                // reservations bind a specific IP address and hostname
+                // to a client's MAC address. When a client with a matching
+                // MAC address sends a DHCP request, Kea always assigns the
+                // reserved address regardless of what is available in the
+                // dynamic pool.
+                //
+                // Infrastructure devices should always have reservations
+                // so their IP addresses are predictable and stable. This
+                // is required for DNS records, firewall rules, and
+                // monitoring to work reliably.
+                //
+                // hw-address: the client's MAC address in colon notation.
+                // ip-address: the IP address to always assign to this client.
+                // hostname: the hostname Kea will register for this client.
+                //           Used for DDNS integration with Bind9 if configured.
+                "reservations": [
+                    {
+                        "comment": "Core switch - Ubiquiti Switch Pro Max 16",
+                        "hw-address": "aa:bb:cc:dd:ee:01",
+                        "ip-address": "10.0.100.10",
+                        "hostname": "core-switch"
+                    },
+                    {
+                        "comment": "Access switch - Ubiquiti Switch Flex 2.5G",
+                        "hw-address": "aa:bb:cc:dd:ee:02",
+                        "ip-address": "10.0.100.11",
+                        "hostname": "access-switch"
+                    },
+                    {
+                        "comment": "Access point - Ubiquiti U7 Pro XG",
+                        "hw-address": "aa:bb:cc:dd:ee:03",
+                        "ip-address": "10.0.100.12",
+                        "hostname": "access-point"
+                    },
+                    {
+                        "comment": "Infra Pi - Unifi controller",
+                        "hw-address": "aa:bb:cc:dd:ee:04",
+                        "ip-address": "10.0.100.20",
+                        "hostname": "eris"
+                    }
+                ]
+            },
+
+            // ----------------------------------------------------------------
+            // Additional subnets follow the same structure as above.
+            // Only fields that differ from the infra subnet are commented.
+            // ----------------------------------------------------------------
+
+            {
+                "comment": "Home VLAN 10 - trusted personal devices",
+                "id": 10,
+                "subnet": "10.0.10.0/24",
+                "interface": "enp4s0.10",
+                "pools": [
+                    {
+                        "pool": "10.0.10.100 - 10.0.10.200"
+                    }
+                ],
+                "option-data": [
+                    {
+                        "name": "routers",
+                        "data": "10.0.10.1"
+                    },
+                    {
+                        "name": "domain-name-servers",
+                        "data": "10.0.10.1"
+                    }
+                ],
+                "reservations": [
+                    {
+                        "comment": "Example reservation for a trusted personal device",
+                        "hw-address": "aa:bb:cc:dd:ee:05",
+                        "ip-address": "10.0.10.10",
+                        "hostname": "example-device"
+                    }
+                ]
+            },
+            {
+                // IoT devices deliberately have no reservations.
+                // These devices are untrusted and their IPs are not
+                // expected to be stable. Firewall rules for IoT use
+                // subnet-level rules not per-device rules.
+                "comment": "IoT VLAN 20 - untrusted smart home devices",
+                "id": 20,
+                "subnet": "10.0.20.0/24",
+                "interface": "enp4s0.20",
+                "pools": [
+                    {
+                        "pool": "10.0.20.100 - 10.0.20.200"
+                    }
+                ],
+                "option-data": [
+                    {
+                        "name": "routers",
+                        "data": "10.0.20.1"
+                    },
+                    {
+                        "name": "domain-name-servers",
+                        "data": "10.0.20.1"
+                    }
+                ]
+            },
+            {
+                // Guest VLAN has no reservations by design. Guest devices
+                // are unknown and transient. Total isolation from all other
+                // VLANs is enforced at the nftables level.
+                "comment": "Guest VLAN 30 - visitor devices, total isolation",
+                "id": 30,
+                "subnet": "10.0.30.0/24",
+                "interface": "enp4s0.30",
+                "pools": [
+                    {
+                        "pool": "10.0.30.100 - 10.0.30.200"
+                    }
+                ],
+                "option-data": [
+                    {
+                        "name": "routers",
+                        "data": "10.0.30.1"
+                    },
+                    {
+                        "name": "domain-name-servers",
+                        "data": "10.0.30.1"
+                    }
+                ]
+            },
+            {
+                // DMZ has a single reserved address for the reverse proxy Pi.
+                // No other devices should ever appear on this VLAN.
+                // nftables enforces strict rules about what this VLAN
+                // can communicate with.
+                "comment": "DMZ VLAN 40 - public facing reverse proxy only",
+                "id": 40,
+                "subnet": "10.0.40.0/24",
+                "interface": "enp4s0.40",
+                "pools": [
+                    {
+                        "pool": "10.0.40.100 - 10.0.40.200"
+                    }
+                ],
+                "option-data": [
+                    {
+                        "name": "routers",
+                        "data": "10.0.40.1"
+                    },
+                    {
+                        "name": "domain-name-servers",
+                        "data": "10.0.40.1"
+                    }
+                ],
+                "reservations": [
+                    {
+                        "comment": "DMZ Pi - HAProxy reverse proxy",
+                        "hw-address": "aa:bb:cc:dd:ee:06",
+                        "ip-address": "10.0.40.10",
+                        "hostname": "ceres"
+                    }
+                ]
+            },
+            {
+                "comment": "Services VLAN 50 - internal servers",
+                "id": 50,
+                "subnet": "10.0.50.0/24",
+                "interface": "enp4s0.50",
+                "pools": [
+                    {
+                        "pool": "10.0.50.100 - 10.0.50.200"
+                    }
+                ],
+                "option-data": [
+                    {
+                        "name": "routers",
+                        "data": "10.0.50.1"
+                    },
+                    {
+                        "name": "domain-name-servers",
+                        "data": "10.0.50.1"
+                    }
+                ]
+            },
+            {
+                // Lab VLAN is fully isolated from all other VLANs.
+                // Devices here are used for experimentation and may be
+                // deliberately broken or misconfigured. No reservations
+                // needed since lab device IPs are not expected to be stable.
+                "comment": "Lab VLAN 60 - experimental, isolated",
+                "id": 60,
+                "subnet": "10.0.60.0/24",
+                "interface": "enp4s0.60",
+                "pools": [
+                    {
+                        "pool": "10.0.60.100 - 10.0.60.200"
+                    }
+                ],
+                "option-data": [
+                    {
+                        "name": "routers",
+                        "data": "10.0.60.1"
+                    },
+                    {
+                        "name": "domain-name-servers",
+                        "data": "10.0.60.1"
+                    }
+                ]
+            },
+            {
+                "comment": "Management VLAN 110 - IaC runner and config management",
+                "id": 110,
+                "subnet": "10.0.110.0/24",
+                "interface": "enp4s0.110",
+                "pools": [
+                    {
+                        "pool": "10.0.110.100 - 10.0.110.200"
+                    }
+                ],
+                "option-data": [
+                    {
+                        "name": "routers",
+                        "data": "10.0.110.1"
+                    },
+                    {
+                        "name": "domain-name-servers",
+                        "data": "10.0.110.1"
+                    }
+                ],
+                "reservations": [
+                    {
+                        "comment": "Management Pi - git runner",
+                        "hw-address": "aa:bb:cc:dd:ee:07",
+                        "ip-address": "10.0.110.10",
+                        "hostname": "dysnomia"
+                    }
+                ]
+            },
+            {
+                // Bootstrap VLAN 999 is the entry point for new unprovisioned
+                // equipment. Devices here are in a quarantine zone with access
+                // only to the Unifi controller on VLAN 100 for adoption.
+                // Once adopted and configured, devices are moved to their
+                // appropriate VLAN. No reservations since devices here are
+                // by definition unknown and temporary.
+                "comment": "Bootstrap VLAN 999 - new unprovisioned equipment",
+                "id": 999,
+                "subnet": "10.0.99.0/24",
+                "interface": "enp4s0.999",
+                "pools": [
+                    {
+                        "pool": "10.0.99.100 - 10.0.99.200"
+                    }
+                ],
+                "option-data": [
+                    {
+                        "name": "routers",
+                        "data": "10.0.99.1"
+                    },
+                    {
+                        "name": "domain-name-servers",
+                        "data": "10.0.99.1"
+                    }
+                ]
+            }
+        ],
+
+        // loggers configures how Kea writes log output.
+        // Sending to syslog integrates with journalctl and eventually
+        // the Loki observability stack. severity INFO captures normal
+        // operational events. Change to DEBUG for troubleshooting.
+        "loggers": [
+            {
+                "name": "kea-dhcp4",
+                "output_options": [
+                    {
+                        "output": "syslog"
+                    }
+                ],
+                "severity": "INFO"
+            }
+        ]
+    }
+}
