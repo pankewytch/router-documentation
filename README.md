@@ -42,7 +42,7 @@ As a principal software engineer I've worked with Kubernetes in a production env
 - Incidents
 
 ## Current Status
-- 04/20/2026 - Verified full IaC tag pipeline
+- 04/21/2026 - Router has basic configs, can issue leases, handles client traffic, and allows clients to reach the internet.
 
 ## Naming Convention
 The devices on this network are named after celestial bodies in our solar system chosen loosely to reflect their role and position in the network hierarchy.
