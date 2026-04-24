@@ -65,5 +65,8 @@ This is a list of projects and ideas that should be pursued in the future once t
     - No shared credentials between services
 - [ ] AppArmor profiles for Docker containers on Ceres
 - [ ] Read-only container filesystems where possible
+- [ ] Evaluate blocking Ubiquiti phone-home traffic on Infra VLAN
+    - Blocks telemetry but also blocks firmware updates
+    - Decision: security vs maintainability tradeoff
 
 ## Completed List (ordered by date desc)
