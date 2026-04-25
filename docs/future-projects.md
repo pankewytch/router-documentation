@@ -7,10 +7,11 @@ This is a list of projects and ideas that should be pursued in the future once t
 - [ ] Use chrony to set up a time server on Sol to be the network NTP
 - [ ] Use a pi or switch to be an IP helper and try doing DHCP on UDP through port 67 instead of handling all un-leased traffic directly
 - [ ] Use network boot options in Kea to allow for network booting of a pi
-- [ ] Transition kea from a memfile to a postgresql db for lease management
+- [x] Transition kea from a memfile to a postgresql db for lease management
 - [ ] Automate git runner pi with separate pipeline
 - [ ] Automate Unifi pi with separate pipeline
 - [ ] Automate DMZ Proxy Pi
+- [ ] Add fail2ban config to IaC pipeline as well as config for it
 - [ ] Validation script ensuring that deployment functions properly
 - [ ] Create state management and tracking router deployment hashes
 - [ ] Install Merlin on existing router and use it on the lab network
@@ -26,7 +27,7 @@ This is a list of projects and ideas that should be pursued in the future once t
 - [ ] Squid or DNS sinkhole for ad blocking (you mentioned this early on)
 - [ ] DPI via security tooling at 2Gbps
 - [ ] RPZ blocklist automation from Pi-hole sources
-- [ ] DNSSEC validation on Unbound
+- [x] DNSSEC validation on Unbound
 - [ ] Rotate MongoDB credentials on Eris - exposed in system.properties output
 - [ ] Backup strategy for Sol configs and lease database
 - [ ] Alerting rules in Grafana for network events
