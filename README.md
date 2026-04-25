@@ -42,7 +42,7 @@ As a principal software engineer I've worked with Kubernetes in a production env
 - Incidents
 
 ## Current Status
-- 04/21/2026 - Router has basic configs, can issue leases, handles client traffic, and allows clients to reach the internet.
+- 04/24/2026 - Fully functional router with interfaces configured, DHCP server, DDNS, dual layer DNS with DNSSEC, and firewall rules. Postgres running in docker that handles client DHCP reservations. Pipeline that handles deployment of all aspects upon tag push.
 
 ## Naming Convention
 The devices on this network are named after celestial bodies in our solar system chosen loosely to reflect their role and position in the network hierarchy.
