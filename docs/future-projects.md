@@ -7,7 +7,7 @@ This is a list of projects and ideas that should be pursued in the future once t
 - [ ] Use chrony to set up a time server on Sol to be the network NTP
 - [ ] Use a pi or switch to be an IP helper and try doing DHCP on UDP through port 67 instead of handling all un-leased traffic directly
 - [ ] Use network boot options in Kea to allow for network booting of a pi
-- [x] Transition kea from a memfile to a postgresql db for lease management
+- [ ] Transition kea from a memfile to a postgresql db for lease management
 - [ ] Automate git runner pi with separate pipeline
 - [ ] Automate Unifi pi with separate pipeline
 - [ ] Automate DMZ Proxy Pi
@@ -19,6 +19,7 @@ This is a list of projects and ideas that should be pursued in the future once t
 - [ ] Internal CA with certificate management for all internal services
 - [ ] WireGuard VPN self-hosted (you mentioned Linode or similar)
 - [ ] Tailscale for remote access
+- [ ] mDNS reflector implementation with nft rules to allow home -> iot
 - [ ] Grafana/Prometheus/Loki observability stack
 - [ ] Honeypot on DMZ VLAN
 - [ ] Vulnerability scanning from Lab VLAN against other VLANs
@@ -69,5 +70,12 @@ This is a list of projects and ideas that should be pursued in the future once t
 - [ ] Evaluate blocking Ubiquiti phone-home traffic on Infra VLAN
     - Blocks telemetry but also blocks firmware updates
     - Decision: security vs maintainability tradeoff
+- [ ] Deep dive into packet structure
+    - Ethernet frame format - 802.1Q VLAN tagging
+    - IP header fields - TTL, protocol numbers, flags
+    - TCP header - ports, sequence numbers, flags (SYN, ACK, FIN)
+    - Reading tcpdump -e -v output
+    - Wireshark for visual packet analysis
 
-## Completed List (ordered by date desc)
+## Completed List (ordered by date completed desc)
+- 04/23/2026 - DNSSEC validation on Unbound
